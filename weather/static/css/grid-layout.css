@@ -1,0 +1,23 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+    grid-gap: 1px 1px;
+	height: 100%;
+}
+
+[component="Title"] {
+    grid-area: 1 / 2 / 1 / 2;
+}
+
+[component="Input"] {
+    grid-area: 2 / 1 / 4 / 3;
+}
+
+[component="Map"] {
+    grid-area: 2 / 3 / 4 / 3;
+}
+
+[component="Response"] {
+    grid-area: 4 / 2 / 4 / 2;
+}

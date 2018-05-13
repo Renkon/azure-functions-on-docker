@@ -1,0 +1,9 @@
+html, body {
+    margin: 0;
+    height: 100%;
+}
+
+body {
+   background-image: url("../img/what-the-hex.png");
+   font-family: "Trebuchet MS";
+}
