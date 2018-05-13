@@ -31,8 +31,8 @@ public static async Task<IActionResult> Run(HttpRequest req, TraceWriter log)
     if (cityId == null || !IsValidID(cityId))
         return new BadRequestObjectResult("Invalid cityId. Make sure you are sending it " +
                 "to the queryString and that it's a valid integer");
-	if (units != null && !ArrayContains(VALID_UNITS, units))
-		return new BadRequestObjectResult("Invalid unit type. You may only use imperial or metric");
+    if (units != null && !ArrayContains(VALID_UNITS, units))
+        return new BadRequestObjectResult("Invalid unit type. You may only use imperial or metric");
                 
     // We include needed queryString key/values in our dictionary
     queryStringDictionary.Add("id", cityId);
