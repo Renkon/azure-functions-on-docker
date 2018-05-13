@@ -11,30 +11,42 @@ using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 
 private const string WEATHER_API_KEY = "[OPENWEATHERMAP_API_HERE]";
+private static readonly string[] VALID_UNITS = { "metric", "imperial" };
 
 public static async Task<IActionResult> Run(HttpRequest req, TraceWriter log)
 {
     // Defs
     string cityId;
-	Dictionary<string, string> queryStringDictionary = new Dictionary<string, string>();
+    string units;
+
+    Dictionary<string, string> queryStringDictionary = new Dictionary<string, string>();
 
     // Init
     log.Info("C# HTTP trigger function processed a request.");
 
     cityId = req.Query["cityId"];
+    units = req.Query["units"];
 
-	// Pre-checking for invalid IDs (server-sided verification)
+    // Pre-checking for invalid IDs (server-sided verification)
     if (cityId == null || !IsValidID(cityId))
         return new BadRequestObjectResult("Invalid cityId. Make sure you are sending it " +
                 "to the queryString and that it's a valid integer");
-				
-	// We include needed queryString key/values in our dictionary
-	queryStringDictionary.Add("id", cityId);
-	queryStringDictionary.Add("APPID", WEATHER_API_KEY);
-	
-	var output = await DoGetRequest(GetApiUrl(queryStringDictionary));
+	if (units != null && !ArrayContains(VALID_UNITS, units))
+		return new BadRequestObjectResult("Invalid unit type. You may only use imperial or metric");
+                
+    // We include needed queryString key/values in our dictionary
+    queryStringDictionary.Add("id", cityId);
+    queryStringDictionary.Add("APPID", WEATHER_API_KEY);
+    queryStringDictionary.Add("units", units != null ? units : "metric");
+    
+    var output = await DoGetRequest(GetApiUrl(queryStringDictionary));
 
     return (ActionResult) new OkObjectResult(output);
+}
+
+private static bool ArrayContains(Array array, Object obj)
+{
+    return Array.IndexOf(array, obj) >= 0;
 }
 
 private static bool IsValidID(string id)
@@ -63,19 +75,19 @@ private static async Task<string> DoGetRequest(string apiUrl)
     {
         var response = await httpClient.GetAsync(apiUrl);
         var jsonContent = await response.Content.ReadAsStringAsync();
-		string output;
-		
+        string output;
+        
         if ((int) response.StatusCode != 200)
         {
-			// We throw an error
+            // We throw an error
             var errInfo = new JsonOutput("ERROR", (int) response.StatusCode, response.ReasonPhrase); 
-			output = JsonConvert.SerializeObject(errInfo);
+            output = JsonConvert.SerializeObject(errInfo);
         }
         else
         {
-			var weatherResponse = JsonConvert.DeserializeObject<WeatherAPIResponse>(jsonContent);
+            var weatherResponse = JsonConvert.DeserializeObject<WeatherAPIResponse>(jsonContent);
             var weatherEntity = new WeatherEntity(weatherResponse);
-			
+            
             var outInfo = new JsonOutput("OK", (int) response.StatusCode, weatherEntity);
             output = JsonConvert.SerializeObject(outInfo);
         }
@@ -88,11 +100,11 @@ private static async Task<string> DoGetRequest(string apiUrl)
 */
 private class JsonOutput
 {
-	public string type { get; private set; }
+    public string type { get; private set; }
     public int status { get; private set; }
     public Object response { get; private set; }
 
-	public JsonOutput(string type, int status, Object response)
+    public JsonOutput(string type, int status, Object response)
     {
         this.type = type;
         this.status = status;
@@ -106,13 +118,13 @@ private class JsonOutput
 */
 private class WeatherEntity
 {
-	public class Weather
+    public class Weather
     {
         public string name { get; set; }
         public string description { get; set; }
         public string icon { get; set; }
 
-		public Weather(WeatherAPIResponse.Weather responseWeather)
+        public Weather(WeatherAPIResponse.Weather responseWeather)
         {
             this.name = responseWeather.main;
             this.description = responseWeather.description;
@@ -124,7 +136,7 @@ private class WeatherEntity
     public double temperature { get; set; }
     public double humidity { get; set; }
     public double windSpeed { get; set; }
-	public string windDirection { get; set; }
+    public string windDirection { get; set; }
     public long sunrise { get; set; }
     public long sunset { get; set; }
 
@@ -134,7 +146,7 @@ private class WeatherEntity
 
         foreach (var weatherInfo in response.weather)
             weatherList.Add(new WeatherEntity.Weather(weatherInfo));
-	
+    
         this.temperature = response.main.temp;
         this.humidity = response.main.humidity;
         this.windSpeed = response.wind.speed;
@@ -215,5 +227,4 @@ private class WeatherAPIResponse
     public int id { get; set; }
     public string name { get; set; }
     public int cod { get; set; }
-
 }
