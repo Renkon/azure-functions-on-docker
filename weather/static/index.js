@@ -119,7 +119,6 @@ function onSelectedInfoChanged(city, units)
 			return;
 		}
 		
-		console.log(response);
 		const weatherResponse = JSON.parse(response).response;
 		
 		$('#respContainer').empty();
