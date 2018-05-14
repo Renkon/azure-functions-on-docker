@@ -3,35 +3,51 @@
 	<head>
 	
 	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+	<script src="http://cdn.dhtmlx.com/edge/dhtmlx.js"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUtHVaasHokwIye7bwC0ooxIosn0f2mws&callback=onMapReady" async defer></script>
 	<script src="index.js"></script>
-	<!--script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUtHVaasHokwIye7bwC0ooxIosn0f2mws&callback=initMap"></script>
-	-->
+
 	<title>Weather Application Demo - Powered by Azure Functions and Docker</title>
 
-	<meta name="description" content="Source code generated using layoutit.com">
+	<meta name="description" content="Demo application">
 	<meta name="author" content="">
 
+	<link href="http://cdn.dhtmlx.com/edge/dhtmlx.css" rel="stylesheet"> 
 	<link href="css/grid-layout.css" rel="stylesheet">
 	<link href="css/style.css" rel="stylesheet">
+	<link href="img/favicon.ico" rel="shortcut icon">
 
 	</head>
 	<body>
 		<div class="grid-container">
 			<div component="Title">
-				<h1>Simple Weather Application</h1>
-				<h3>(with Azure Functions and Docker)</h3>
+				<center>
+					<h1>Simple Weather Application</h1>
+					<h3>(with Azure Functions and Docker)</h3>
+				</center>
 			</div>
 			<div component="Input">
-				<p>Select your country and city. We will provide you the weather information.</p>
-				
-				<div id="loadCountriesDiv"><img src="ajax-loader.gif"/>Downloading country list..</div>
-				<div id="loadCitiesDiv"><img src="ajax-loader.gif"/>Downloading city list..</div>
+				<center>
+					<div id="loadCountriesDiv"><img src="img/loading.gif"/>Downloading country list..</div>
+					<div id="loadCitiesDiv"><img src="img/loading.gif"/>Downloading city list..</div>
+					
+					<h4>Select country:</h4>
+					<div class="combo" id="comboCountry"></div>
+					<br>
+					<h4>Select city:</h4>
+					<div class="combo" id="comboCity"></div>
+					<span id="radioSpan">
+						<input type="radio" name="unitType" onclick="handleClick(this);" value="metric" checked="checked" /> Metric
+						<input type="radio" name="unitType" onclick="handleClick(this);" value="imperial" /> Imperial
+					</span>
+				</center>
 			</div>
-			<div component="Map">
+			<div id="map" component="Map">
 				Map
 			</div>
 			<div component="Response">

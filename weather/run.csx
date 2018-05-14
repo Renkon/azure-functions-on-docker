@@ -135,6 +135,7 @@ private class WeatherEntity
     public List<WeatherEntity.Weather> weatherList { get; set; }
     public double temperature { get; set; }
     public double humidity { get; set; }
+    public double pressure { get; set; }
     public double windSpeed { get; set; }
     public string windDirection { get; set; }
     public long sunrise { get; set; }
@@ -149,6 +150,7 @@ private class WeatherEntity
     
         this.temperature = response.main.temp;
         this.humidity = response.main.humidity;
+        this.pressure = response.main.pressure;
         this.windSpeed = response.wind.speed;
         this.windDirection = getWindDirection(response.wind.deg);
         this.sunrise = response.sys.sunrise;
@@ -188,8 +190,8 @@ private class WeatherAPIResponse
     public class Main
     {
         public double temp { get; set; }
-        public int pressure { get; set; }
-        public int humidity { get; set; }
+        public double pressure { get; set; }
+        public double humidity { get; set; }
         public double temp_min { get; set; }
         public double temp_max { get; set; }
 }

@@ -4,6 +4,16 @@ html, body {
 }
 
 body {
-   background-image: url("../img/what-the-hex.png");
+   background-image: url("../img/vintage-concrete.png");
    font-family: "Trebuchet MS";
+}
+
+h4 {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+#radioSpan {
+	margin-top: 10px;
+	display: block;
 }
