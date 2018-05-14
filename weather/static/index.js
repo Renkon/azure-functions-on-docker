@@ -1,8 +1,8 @@
 // For testing purposes, you can use githubusercontent, but we recommend that you upload a copy somewhere else.
 // Even locally using a simple webserver should be enough.
-const countriesPath = "https://raw.githubusercontent.com/Renkon/azure-functions-on-docker/master/weather/static/countries.json"
-const citiesPath = "https://raw.githubusercontent.com/Renkon/azure-functions-on-docker/master/weather/static/cities.json"
-const backEndPath = "http://localhost:8080/api/weather";
+const countriesPath = 'https://raw.githubusercontent.com/Renkon/azure-functions-on-docker/master/weather/static/countries.json'
+const citiesPath = 'https://raw.githubusercontent.com/Renkon/azure-functions-on-docker/master/weather/static/cities.json'
+const backEndPath = 'http://localhost:8080/api/weather';
 
 const JSONUtils = {
 	loadFile: (fileUrl, callbackMethod) => {
@@ -17,7 +17,7 @@ const RequestUtils = {
 		request.open('GET', url, asynchronous);
 		request.onreadystatechange = () => {
 			if (request.readyState == 4)
-				callbackMethod(request.responseText);
+				callbackMethod(request.responseText, request.status);
 		};
 		request.send(sendInfo);
 	}
@@ -37,15 +37,27 @@ let currentCity;
 
 let citiesByCountry = {};
 
-function countriesSetter(response)
+function countriesSetter(response, status)
 {
+	if (status !== 200)
+	{
+		alert('Error when attempting to connect to the back-end!');
+		return;
+	}
+	
 	countryNames = JSON.parse(response);
 	
 	onDownloadComplete('#loadCountriesDiv');
 }
 
-function citiesSetter(response)
+function citiesSetter(response, status)
 {
+	if (status !== 200)
+	{
+		alert('Error when attempting to connect to the back-end!');
+		return;
+	}
+	
 	cities = JSON.parse(response);
 	// Given the fact that cities file is way bigger,
 	// I'll execute the callback from here.
@@ -57,7 +69,7 @@ function citiesSetter(response)
 function onDownloadComplete(divId)
 {
 	$(divId).css('color', '#00aa00');
-	$(divId).find('img').attr("src","img/loaded.png"); 
+	$(divId).find('img').attr('src','img/loaded.png'); 
 }
 
 function onFilesDownloaded()
@@ -94,14 +106,76 @@ function onSelectedInfoChanged(city, units)
 		return backEndPath + '?cityId=' + city.id + '&units=' + units;
 	}
 	
-	function onCallback(response)
+	function round(value, precision) {
+		var multiplier = Math.pow(10, precision || 0);
+		return Math.round(value * multiplier) / multiplier;
+	}
+	
+	function onWeatherResponseCallback(response, status)
 	{
-		console.log('r: ' + response);
+		if (status !== 200)
+		{
+			alert('Error when attempting to connect to the back-end!');
+			return;
+		}
+		
+		console.log(response);
+		const weatherResponse = JSON.parse(response).response;
+		
+		$('#respContainer').empty();
+		
+		let content = [];
+		
+		/* weather */
+		content.push('<div id="weather">');
+		weatherResponse.weatherList.forEach((weather) => {
+			content.push('<div class="weather">');
+			content.push('<div class="weatherImgContainer"><img src="http://openweathermap.org/img/w/' + weather.icon + '.png"/></div>');
+			content.push('<div class="weatherDescContainer"><h3>' + weather.name + '</h3><p>' + weather.description + '</p></div>');
+			content.push('</div>');
+		});
+		content.push('</div>');
+		
+		/* temperature */
+		content.push('<div class="content" id="temperature">');
+		content.push('<div class="contentImgContainer"><img src="img/temperature.png"/></div>');
+		content.push('<div class="contentDescContainer">Temperature: <b>' + round(weatherResponse.temperature, 1) + 'º' + (units === 'metric' ? 'C' : 'F') + '</b></div>');
+		content.push('</div>');
+		
+		/* humidity */
+		content.push('<div class="content" id="humidity">');
+		content.push('<div class="contentImgContainer"><img src="img/humidity.png"/></div>');
+		content.push('<div class="contentDescContainer">Humidity: <b>' + round(weatherResponse.humidity) + '%</b></div>');
+		content.push('</div>');
+		
+		/* pressure */
+		content.push('<div class="content" id="pressure">');
+		content.push('<div class="contentImgContainer"><img src="img/pressure.png"/></div>');
+		content.push('<div class="contentDescContainer">Presure: <b>' + round(weatherResponse.pressure, 1) + ' hPa</b></div>');
+		content.push('</div>');
+		
+		/* wind */
+		content.push('<div class="content" id="wind">');
+		content.push('<div class="contentImgContainer"><img src="img/wind.png"/></div>');
+		content.push('<div class="contentDescContainer">Speed: <B>' + round(units === 'metric' ? weatherResponse.windSpeed * 3.6 : weatherResponse.windSpeed, 1) + ' ' + (units === 'metric' ? 'km/h' : 'mi/h') +'</b> - Direction: <b>' + weatherResponse.windDirection + '</b></div>');
+		content.push('</div>');
+		
+		const sunriseParts = new Date(weatherResponse.sunrise * 1000).toTimeString().split(' ');
+		const sunsetParts = new Date(weatherResponse.sunset * 1000).toTimeString().split(' ');
+		/* sunrise and sunset */
+		content.push('<div class="content" id="sun">');
+		content.push('<div class="contentImgContainer"><img src="img/sunrise.png"/></div>');
+		content.push('<div class="contentDescContainer">Sunrise: <b>' + sunriseParts[0] + ' ' + sunriseParts[1] + ' </b></div>');
+		content.push('<div class="contentImgContainer"><img src="img/sunset.png"/></div>');
+		content.push('<div class="contentDescContainer">Sunset: <b>' + sunsetParts[0] + ' ' + sunsetParts[1] + '</b></div>');
+		content.push('</div>');
+				
+		$("#respContainer").append(content.join(''));
 	}
 	
 	if (city != null)
 	{
-		RequestUtils.createGetRequest(getRequestUrl(city, units), onCallback, null, true, 'application/json');
+		RequestUtils.createGetRequest(getRequestUrl(city, units), onWeatherResponseCallback, null, true, 'application/json');
 		
 		if (mapElement.getZoom() !== 8)
 			mapElement.setZoom(8);
@@ -174,6 +248,11 @@ $(document).ready(() => {
 				onSelectedInfoChanged(selectedCity, units);
 			});
 		}
+	});
+	
+	$('input[type=radio][name=unitType]').change(function() {
+		units = this.value;
+		onSelectedInfoChanged(currentCity, this.value);
 	});
 });
 

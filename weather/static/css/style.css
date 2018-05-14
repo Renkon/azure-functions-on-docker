@@ -13,7 +13,48 @@ h4 {
 	margin-bottom: 10px;
 }
 
-#radioSpan {
+#radio {
 	margin-top: 10px;
 	display: block;
+}
+
+#weather {
+	display: flex;
+	justify-content: space-evenly;
+}
+
+.weatherDescContainer {
+	text-align: center;
+}
+
+.weatherDescContainer h3 {
+	margin-top: 25px;
+	margin-bottom: 0px;
+}
+
+.weatherDescContainer p {
+	margin-top: 10px;
+	margin-bottom: 20px;
+}
+
+.weatherImgContainer {
+	position: relative;
+}
+
+.weatherImgContainer img {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	margin-bottom: 10px;
+}
+
+.contentImgContainer img {
+	display: block;
+	margin-right: 10px;
+}
+
+.content div {
+	display: inline-block;
+	vertical-align: middle;
 }

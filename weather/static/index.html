@@ -41,17 +41,15 @@
 					<br>
 					<h4>Select city:</h4>
 					<div class="combo" id="comboCity"></div>
-					<span id="radioSpan">
-						<input type="radio" name="unitType" onclick="handleClick(this);" value="metric" checked="checked" /> Metric
-						<input type="radio" name="unitType" onclick="handleClick(this);" value="imperial" /> Imperial
+					<span id="radio">
+						<input type="radio" name="unitType" value="metric" checked="checked" /> Metric
+						<input type="radio" name="unitType" value="imperial" /> Imperial
 					</span>
 				</center>
 			</div>
 			<div id="map" component="Map">
-				Map
 			</div>
-			<div component="Response">
-				Extra
+			<div id="respContainer" component="Response">
 			</div>
 		</div>
 	</body>
