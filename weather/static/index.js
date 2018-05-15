@@ -84,7 +84,9 @@ function onFilesDownloaded()
 
 	//	First, we create the keys for our citiesByCountry array
 	Object.keys(countryNames).forEach((countryCode) => {
+		let countryName = countryNames[countryCode];
 		citiesByCountry[countryCode] = [];
+		comboCountry.addOption(countryCode, countryName);
 	});
 	
 	// Then, we populate the tables
@@ -193,9 +195,6 @@ function onSelectedInfoChanged(city, units)
 	}
 }
 
-JSONUtils.loadFile(countriesPath, countriesSetter);
-JSONUtils.loadFile(citiesPath, citiesSetter);
-
 function onMapReady()
 {
 	mapElement = new google.maps.Map($('#map')[0], {
@@ -214,10 +213,6 @@ $(document).ready(() => {
 	// We initialize the comboboxes.
 	comboCountry = new dhtmlXCombo('comboCountry', 'combo1', 350);
 	comboCountry.setPlaceholder('Country name');
-	Object.keys(countryNames).forEach((countryCode) => {
-		let countryName = countryNames[countryCode];
-		comboCountry.addOption(countryCode, countryName);
-	});
 	comboCountry.enableFilteringMode(true);
 	comboCountry.disable();
 	
@@ -253,5 +248,8 @@ $(document).ready(() => {
 		units = this.value;
 		onSelectedInfoChanged(currentCity, this.value);
 	});
+	
+	JSONUtils.loadFile(countriesPath, countriesSetter);
+	JSONUtils.loadFile(citiesPath, citiesSetter);
 });
 
